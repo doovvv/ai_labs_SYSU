@@ -1,6 +1,6 @@
 import copy
 import queue
-variables = ['x','y','z','u','v','w','s','t']
+arguments = ['x','y','z','u','v','w','s','t']
 functions = ['f','g']
 lines = []
 success = False
@@ -8,20 +8,20 @@ record = []
 class Predicate:
     def __init__(self,name):
         self.name = name
-        self.variables = []
+        self.arguments = []
     def __ne__(self, other: object) -> bool:
         if self.name != other.name:
             return True
         else:
-            for i in range(0,len(self.variables)):
-                if self.variables[i] != other.variables[i]:
+            for i in range(0,len(self.arguments)):
+                if self.arguments[i] != other.arguments[i]:
                     return True
         return False
 
 class function:
     def __init__(self,name):
         self.name = name
-        self.variables = []
+        self.arguments = []
 
 def is_predicate(s):
     for i in range(ord('A'),ord('Z')+1):
@@ -30,12 +30,12 @@ def is_predicate(s):
     return False
 
 def is_variable(s):
-    if s in variables:
+    if s in arguments:
         return True
     return False
 
 def is_constant(s):
-    if s in variables or s == ",":
+    if s in arguments or s == ",":
         return False
     return True
 
@@ -62,12 +62,12 @@ def display_function(f:function):
     res = ""
     res += f.name
     res += "("
-    for i in range(0,len(f.variables)):
-        if f.variables[i][1] == 2:
-            res += display_function(f.variables[i][0])
+    for i in range(0,len(f.arguments)):
+        if f.arguments[i][1] == 2:
+            res += display_function(f.arguments[i][0])
         else:
-            res += f.variables[i][0]
-        if i < len(f.variables)-1:
+            res += f.arguments[i][0]
+        if i < len(f.arguments)-1:
             res += ","
         else:
             res += ")"
@@ -98,12 +98,12 @@ def display(entry):
     print(" = (",end = "")
     for predicate in add_line:
         print("%s("%predicate.name,end="")
-        for argu in predicate.variables:
+        for argu in predicate.arguments:
             if argu[1] == 2:
                 print(display_function(argu[0]),end="")
             else:
                 print("%s"%argu[0],end="")
-            if argu != predicate.variables[-1]:
+            if argu != predicate.arguments[-1]:
                 print(",",end="")
         print(")",end="")
         if predicate != add_line[-1]:
@@ -145,33 +145,33 @@ def display_success(info:tuple):
         display(entry)
 
 def sub_func(argu_var,argu_con,t):
-    for index in range(0,len(t[0].variables)):
-        if t[0].variables[index] == argu_var:
-            t[0].variables[index] = argu_con
-        elif t[0].variables[index][1] == 2:
-            t[0].variables[index] = sub_func(argu_var,argu_con,t[0].variables[index])
+    for index in range(0,len(t[0].arguments)):
+        if t[0].arguments[index] == argu_var:
+            t[0].arguments[index] = argu_con
+        elif t[0].arguments[index][1] == 2:
+            t[0].arguments[index] = sub_func(argu_var,argu_con,t[0].arguments[index])
     return t
 
 def substiution(argu_var,argu_con,add_line):
     #add_line = copy.deepcopy(lines[i][:pre]+lines[i][pre+1:]+lines[j][:tar]+lines[j][tar+1:])
     for predicate in add_line:
-        for m in range(0,len(predicate.variables)):
-            if predicate.variables[m] == argu_var:
-                predicate.variables[m] = argu_con
-            elif predicate.variables[m][1] == 2:
-                t = sub_func(argu_var,argu_con,predicate.variables[m])
-                predicate.variables[m] = t
+        for m in range(0,len(predicate.arguments)):
+            if predicate.arguments[m] == argu_var:
+                predicate.arguments[m] = argu_con
+            elif predicate.arguments[m][1] == 2:
+                t = sub_func(argu_var,argu_con,predicate.arguments[m])
+                predicate.arguments[m] = t
     return add_line
 
 def find_func_disagreement(f1:tuple,f2:tuple):
      if f1[0].name == f2[0].name:
-         for index in range(0,len(f1[0].variables)):
-            if f1[0].variables[index][1] == 1:
-                 return f1[0].variables[index],f2[0].variables[index]
-            elif f2[0].variables[index][1] == 1:
-                return f2[0].variables[index],f1[0].variables[index]
-            elif f1[0].variables[index][1] == 2 and f2[0].variables[index][1] == 2:
-                return find_func_disagreement(f1[0].variables[index],f2[0].variables[index])
+         for index in range(0,len(f1[0].arguments)):
+            if f1[0].arguments[index][1] == 1:
+                 return f1[0].arguments[index],f2[0].arguments[index]
+            elif f2[0].arguments[index][1] == 1:
+                return f2[0].arguments[index],f1[0].arguments[index]
+            elif f1[0].arguments[index][1] == 2 and f2[0].arguments[index][1] == 2:
+                return find_func_disagreement(f1[0].arguments[index],f2[0].arguments[index])
 
 def MGU(predicate,target,i,j,pre,tar):
     flag = False
@@ -179,40 +179,40 @@ def MGU(predicate,target,i,j,pre,tar):
     argu_cons = []
     argu_vars = []
     add_line = copy.deepcopy(lines[i][:pre]+lines[i][pre+1:]+lines[j][:tar]+lines[j][tar+1:])
-    for m in range(0,len(predicate.variables)):
-        if predicate.variables[m] != target.variables[m]:
-            if predicate.variables[m][1] == 1 and target.variables[m][1] == 0:
-                argu_var = predicate.variables[m]
-                argu_con = target.variables[m]
+    for m in range(0,len(predicate.arguments)):
+        if predicate.arguments[m] != target.arguments[m]:
+            if predicate.arguments[m][1] == 1 and target.arguments[m][1] == 0:
+                argu_var = predicate.arguments[m]
+                argu_con = target.arguments[m]
                 argu_vars.append(argu_var)
                 argu_cons.append(argu_con)
                 flag = True
-            elif predicate.variables[m][1] == 0 and target.variables[m][1] == 1:
-                argu_var = target.variables[m]
-                argu_con = predicate.variables[m]
+            elif predicate.arguments[m][1] == 0 and target.arguments[m][1] == 1:
+                argu_var = target.arguments[m]
+                argu_con = predicate.arguments[m]
                 argu_vars.append(argu_var)
                 argu_cons.append(argu_con)
                 flag = True
-            elif predicate.variables[m][1] == 1 and target.variables[m][1] == 1:
-                argu_var = target.variables[m]
-                argu_con = predicate.variables[m]
+            elif predicate.arguments[m][1] == 1 and target.arguments[m][1] == 1:
+                argu_var = target.arguments[m]
+                argu_con = predicate.arguments[m]
                 argu_vars.append(argu_var)
                 argu_cons.append(argu_con)
                 flag = True
-            elif predicate.variables[m][1] == 2 and target.variables[m][1] == 1:
-                argu_var = target.variables[m]
-                argu_con = predicate.variables[m]
+            elif predicate.arguments[m][1] == 2 and target.arguments[m][1] == 1:
+                argu_var = target.arguments[m]
+                argu_con = predicate.arguments[m]
                 argu_vars.append(argu_var)
                 argu_cons.append(argu_con)
                 flag = True
-            elif predicate.variables[m][1] == 1 and target.variables[m][1] == 2:
-                argu_var = predicate.variables[m]
-                argu_con = target.variables[m]
+            elif predicate.arguments[m][1] == 1 and target.arguments[m][1] == 2:
+                argu_var = predicate.arguments[m]
+                argu_con = target.arguments[m]
                 argu_vars.append(argu_var)
                 argu_cons.append(argu_con)
                 flag = True
-            elif predicate.variables[m][1] == 2 and target.variables[m][1] == 2:
-                argu_var,argu_con = find_func_disagreement(predicate.variables[m],target.variables[m])
+            elif predicate.arguments[m][1] == 2 and target.arguments[m][1] == 2:
+                argu_var,argu_con = find_func_disagreement(predicate.arguments[m],target.arguments[m])
                 argu_vars.append(argu_var)
                 argu_cons.append(argu_con)
                 flag = True 
@@ -263,9 +263,9 @@ def is_function(word:str):
 
 def find_deepest_func(f:function,func_deepth:int,t:tuple):
     if func_deepth == 1:
-        return (f.variables.append(t),2)
+        return (f.arguments.append(t),2)
     else:
-        return (find_deepest_func(f.variables[-1][0],func_deepth-1,t))
+        return (find_deepest_func(f.arguments[-1][0],func_deepth-1,t))
 
 n = int(input())
 for i in range(n):
@@ -281,10 +281,10 @@ for i in range(n):
             for index in range(j+2,len(word_list)):
                 if is_function(word_list[index]):
                     if create_function == 0:
-                        p.variables.append((function(word_list[index]),2))
+                        p.arguments.append((function(word_list[index]),2))
                         create_function = 1
                     elif create_function > 0:
-                        (find_deepest_func(p.variables[-1][0],create_function,(function(word_list[index]),2)))
+                        (find_deepest_func(p.arguments[-1][0],create_function,(function(word_list[index]),2)))
                         create_function = 2
                 elif(word_list[index] == ")"):
                     if create_function == 0:
@@ -295,15 +295,15 @@ for i in range(n):
                     continue
                 elif is_variable(word_list[index]):
                     if create_function > 0:
-                        (find_deepest_func(p.variables[-1][0],create_function,(word_list[index],1)))
+                        (find_deepest_func(p.arguments[-1][0],create_function,(word_list[index],1)))
                     else:
-                        p.variables.append((word_list[index],1))
+                        p.arguments.append((word_list[index],1))
                 else:
                     if create_function > 0:
-                        (find_deepest_func(p.variables[-1][0],create_function,(word_list[index],0)))
+                        (find_deepest_func(p.arguments[-1][0],create_function,(word_list[index],0)))
                 
                     else:
-                        p.variables.append((word_list[index],0))
+                        p.arguments.append((word_list[index],0))
             predicates.append(p)
     lines.append(predicates)
 resolution(lines)
