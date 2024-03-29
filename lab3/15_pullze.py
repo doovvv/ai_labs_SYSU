@@ -62,6 +62,7 @@ def a_star():
     closed[pullze] = 1
     state = [pullze,(3,3)]
     frontier.put((0,state))
+    parent 
     while(not frontier.empty()):
         state = frontier.get()[1]
         #state[0] = change_to_tuple(state[0])
