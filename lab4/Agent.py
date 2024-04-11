@@ -1,8 +1,11 @@
+count_steps = 0
 def Search(board, EMPTY, BLACK, WHITE, isblack):
     # 目前 AI 的行为是随机落子，请实现 AlphaBetaSearch 函数后注释掉现在的 return 
     # 语句，让函数调用你实现的 alpha-beta 剪枝
     #return RandomSearch(board, EMPTY)
-    return AlphaBetaSearch(board, EMPTY, BLACK, WHITE, isblack)
+    global count_steps
+    count_steps += 1
+    return AlphaBetaSearch(board, EMPTY, BLACK, WHITE, isblack,count_steps)
 
 def RandomSearch(board, EMPTY):
     # AI 的占位行为，随机选择一个位置落子
@@ -16,7 +19,7 @@ def RandomSearch(board, EMPTY):
         y = randint(0, ROWS - 1)
     return x, y, 0
 
-def AlphaBetaSearch(board, EMPTY, BLACK, WHITE, isblack):
+def AlphaBetaSearch(board, EMPTY, BLACK, WHITE, isblack,count_steps):
     '''
     ---------------参数---------------
     board       当前的局面，是 15×15 的二维 list，表示棋盘
@@ -32,9 +35,11 @@ def AlphaBetaSearch(board, EMPTY, BLACK, WHITE, isblack):
     # 请修改此函数，实现 alpha-beta 剪枝
     # =============你的代码=============
     ...
+    if count_steps == 1:
+        return 7,7,0
     coordinate = ()
     if isblack:
-        coordinate,alpha = MinMax(1,1,3,float('-inf'),float('inf'),board,(0,0),0)
+        coordinate,alpha = MinMax(1,1,4,float('-inf'),float('inf'),board,(0,0))
     return coordinate[0], coordinate[1], alpha
 
 # 你可能还需要定义评价函数或者别的什么
@@ -45,29 +50,28 @@ def AlphaBetaSearch(board, EMPTY, BLACK, WHITE, isblack):
 
 # 以下为编写搜索和评价函数时可能会用到的函数，请看情况使用、修改和优化
 # =============辅助函数=============
-def MinMax(n,player,depth_limit,alpha,beta,board,coordinate,grade):
+def MinMax(n,player,depth_limit,alpha,beta,board,coordinate):
     x = -1
     y = -1
-    if n != 0:
+    """if n != 0:
         from copy import deepcopy
         temp_board = deepcopy(board)
         temp_board[coordinate[0]][coordinate[1]] = (board[coordinate[0]][coordinate[1]]+1) % 2
-        grade -= analysis_horion(temp_board)
-        grade += analysis_horion(board)
+        grade -= analysis(temp_board)
+        grade += analysis(board)
         if grade >= 9999:
-            return (coordinate,grade)
+            return (coordinate,grade)"""
     if n == depth_limit:
-        from copy import deepcopy
-        temp_board = deepcopy(board)
-        temp_board[coordinate[0]][coordinate[1]] = (board[coordinate[0]][coordinate[1]]+1) % 2
-        grade -= analysis_horion(temp_board)
-        grade += analysis_horion(board)
+        grade = 0
+        grade += analysis(board)
         return (coordinate,grade)
     if player == 1:
         next_state = get_successors(board,player,_coordinate_priority,-1)
         coordinate=()
         for x,y,state in next_state:
-            temp_alpha = MinMax(n+1,0,depth_limit,alpha,beta,state,(x,y),grade)[1]
+            if x == 6 and y == 5:
+                temp = 0
+            temp_alpha = MinMax(n+1,0,depth_limit,alpha,beta,state,(x,y))[1]
             if( temp_alpha > alpha):
                 alpha = temp_alpha
                 coordinate = (x,y)
@@ -78,7 +82,7 @@ def MinMax(n,player,depth_limit,alpha,beta,board,coordinate,grade):
         next_state = get_successors(board,player,_coordinate_priority,-1)
         coordinate = ()
         for x,y,state in next_state:
-            temp_beta = MinMax(n+1,1,depth_limit,alpha,beta,state,(x,y),grade)[1]
+            temp_beta = MinMax(n+1,1,depth_limit,alpha,beta,state,(x,y))[1]
             if temp_beta < beta:
                 beta = temp_beta
                 coordinate = (x,y)
@@ -100,93 +104,296 @@ priority_board = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                   [0,1,2,2,2,2,2,2,2,2,2,2,2,1,0],
                   [0,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
                   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
-def wulian(line):
-    black = 0
-    white = 0
-    for i in range(0,len(line)):
-        if(line[i] == 1):
-            black += 1
-            if(black == 5):
-                return 1
-        else:
-            black = 0
-        if(line[i] == 0):
-            white += 1
-            if(white == 5):
-                return 0
-        else:
-            white = 0
-    return -1
-def huosi(line):
-    black = 0
-    white = 0
-    for i in range(1,len(line)-1):
-        if(line[i] == 1 and line[i-1] != 0 and line[i+1] != 0):
-            black += 1
-            if(black == 4):
-                return 1
-        else:
-            black = 0
-        if(line[i] == 0 and line[i-1] != 1 and line[i+1] != 1):
-            white += 1
-            if(white == 4):
-                return 0
-        else:
-            white = 0
-    return -1
-def chongsi(line):
-    black1 = [1,1,1,1,0]
-    black2 = [0,1,1,1,1]
-    white1 = [0,0,0,0,1]
-    white2 = [1,0,0,0,0]
-    if line[0:5] == [1,1,1,1,-1] or line[10:15] == [-1,1,1,1,1]:
-        return 1
-    elif line[0:5] == [0,0,0,0,-1] or line[10:15] == [-1,0,0,0,0]:
-        return 0
-    for i in range(len(line)-5):
-        if line[i:i+5] == black1 or line[i:i+5] == black2:
-            return 1
-    for i in range(len(line)-5):
-        if line[i:i+5] == white1 or line[i:i+5] == white2:
-            return 0
-    return -1
-def analysis_horion(board):
-    grade = 0
+def get_grade(line):
     black_wulian_list = [1,1,1,1,1]
     black_wulian_num = 0
     white_wulian_list = [0,0,0,0,0]
     white_wulian_num = 0
     black_lianchongsi_list1 = [-1,1,1,1,1,0]
     black_lianchongsi_list2 = [0,1,1,1,1,-1]
-    black_lianchongsi_num = 0
+    black_tiaochongsi_list1 = [1,1,1,-1,1]
+    black_tiaochongsi_list2 = [1,1,-1,1,1]
+    black_tiaochongsi_list3 = [1,-1,1,1,1]
+    black_chongsi_num = 0
     white_lianchongsi_list1 = [-1,0,0,0,0,1]
     white_lianchongsi_list2 = [1,0,0,0,0,-1]
-    white_lianchongsi_num = 0
+    white_tiaochongsi_list1 = [0,0,0,-1,0]
+    white_tiaochongsi_list2 = [0,0,-1,0,0]
+    white_tiaochongsi_list3 = [0,-1,0,0,0]
+    white_chongsi_num = 0
+    black_huosi_list = [-1,1,1,1,1,-1]
+    white_huosi_list = [-1,0,0,0,0,-1]
+    black_huosi_num = 0
+    white_huosi_num = 0
+    black_lianhuosan_list = [-1,1,1,1,-1]
+    black_tiaohuosan_list1 = [-1,1,1,-1,1,-1]
+    black_tiaohuosan_list2 = [-1,1,-1,1,1,-1]
+    black_huosan_num = 0
+    white_lianhuosan_list = [0,1,1,1,0]
+    white_tiaohuosan_list1 = [-1,0,0,-1,0,-1]
+    white_tiaohuosan_list2 = [-1,0,-1,0,0,-1]
+    white_huosan_num = 0
+    black_lianer_list = [-1,1,1,-1]
+    black_tiaoer_list = [-1,1,-1,1,-1]
+    black_datiaoer_list = [-1,1,-1,-1,1,-1]
+    black_huoer_num = 0
+    white_lianer_list = [-1,0,0,-1]
+    white_tiaoer_list = [-1,0,0,0,-1]
+    white_datiaoer_list = [-1,0,-1,-1,0,-1]
+    white_huoer_num = 0
+    black_chonger_list1 = [0,1,1,-1]
+    black_chonger_list2 = [-1,0,0,1]
+    black_chonger_num = 0
+    white_chonger_list1 = [1,0,0,-1]
+    white_chonger_list2 = [-1,0,0,1]
+    white_chonger_num = 0
+    if len(line) >= 3:
+        if line[0:3] == [1,1,-1]:
+            black_chonger_num += 1
+        elif line[0:3] == [0,0,-1]:
+            white_chonger_num += 1
+        if line[len(line)-3:len(line)] == [-1,1,1]:
+            black_chonger_num += 1
+        elif line[len(line)-3:len(line)] == [-1,0,0]:
+            white_chonger_num += 1
+    if len(line) >= 5:
+        if line[0:5] == [1,1,1,1,-1] :
+            black_chongsi_num += 1
+        if line[len(line)-5:len(line)] == [-1,1,1,1,1]:
+            black_chongsi_num += 1
+        if line[0:5] == [0,0,0,0,-1]:
+            white_chongsi_num += 1
+        if line[len(line)-5:len(line)] == [-1,0,0,0,0]:
+            white_chongsi_num += 1
+    for i in range(0,len(line)-5,1):
+        if line[i:i+4] == black_lianer_list:
+            black_huoer_num += 2
+        elif line[i:i+4] == white_lianer_list:
+            white_huoer_num += 2
+        elif line[i:i+4] == black_chonger_list1 or line[i:i+4] == black_chonger_list2:
+            black_chonger_num += 1
+        elif line[i:i+4] == white_chonger_list1 or line[i:i+4] == white_chonger_list2:
+            white_chonger_num += 1
+        if line[i:i+5] == black_wulian_list:
+            black_wulian_num  += 1
+        elif line[i:i+5] == white_wulian_list:
+            white_wulian_num  += 1
+        elif line[i:i+5] == black_tiaochongsi_list1 or line[i:i+5] == black_tiaochongsi_list2 or line[i:i+5] == black_tiaochongsi_list3:
+            black_chongsi_num += 1
+        elif line[i:i+5] == white_tiaochongsi_list1 or line[i:i+5] == white_tiaochongsi_list2 or line[i:i+5] == white_tiaochongsi_list3:
+            white_chongsi_num += 1
+        elif line[i:i+5] == black_lianhuosan_list:
+            black_huosan_num += 1
+        elif line[i:i+5] == white_lianhuosan_list:
+            white_huosan_num += 1
+        elif line[i:i+5] == black_tiaoer_list:
+            black_huoer_num += 1
+        elif line[i:i+5] == white_tiaoer_list:
+            white_huoer_num += 1
+        if i < len(line)-6:
+            if line[i:i+6] == black_lianchongsi_list1 or line[i:i+6] == black_lianchongsi_list2:
+                black_chongsi_num += 1
+            elif line[i:i+6] == white_lianchongsi_list1 or line[i:i+6] == white_lianchongsi_list2:
+                white_chongsi_num += 1
+            elif line[i:i+6] == black_huosi_list:
+                black_huosi_num += 1
+            elif line[i:i+6] == white_huosi_list:
+                white_huosi_num += 1
+            elif line[i:i+6] == black_tiaohuosan_list1 or line[i:i+6] == black_tiaohuosan_list2:
+                black_huosan_num += 1
+            elif line[i:i+6] == white_tiaohuosan_list1 or line[i:i+6] == white_tiaohuosan_list2:
+                white_huosan_num += 1
+            elif line[i:i+6] == black_datiaoer_list:
+                black_huoer_num += 1
+            elif line[i:i+6] == white_datiaoer_list:
+                white_huoer_num += 1
+    if len(line)>=4:
+        if line[len(line)-4:len(line)] == black_lianer_list:
+            black_huoer_num += 2
+        elif line[len(line)-4:len(line)] == white_lianer_list:
+            white_huoer_num += 2
+    return (black_wulian_num,white_wulian_num,black_huosi_num,white_huosi_num,black_chongsi_num,white_chongsi_num,black_huosan_num,white_huosan_num,black_huoer_num,white_huoer_num,black_chonger_num,white_chonger_num)
+def get_vertical_board(board):
+    for i in range(15):
+        line = []
+        for j in range(15):
+            line.append(board[j][i])
+        yield(line)
+def get_left_board(board):
+    for i in range(15):
+        line = []
+        row = i
+        column = 0
+        while row >= 0:
+            line.append(board[row][column])
+            row -= 1
+            column += 1
+        yield(line)
+    for i in range(1,15):
+        line = []
+        column = i
+        row = 14
+        while column <= 14:
+            line.append(board[row][column])
+            row -= 1
+            column += 1
+        yield(line)
+
+def get_right_board(board):
+    for i in range(14,-1,-1):
+        line = []
+        column = i
+        row = 0
+        while column <= 14:
+            line.append(board[row][column])
+            column += 1
+            row += 1
+        yield(line)
+    for i in range(1,15):
+        line = []
+        row = i
+        column = 0
+        while row <= 14:
+            line.append(board[row][column])
+            row += 1
+            column += 1
+        yield(line)
+def analysis(board):
+    grade = 0
+    black_wulian_num = 0
+    white_wulian_num = 0
+    black_huosi_num = 0
+    white_huosi_num = 0
+    black_chongsi_num = 0
+    white_chongsi_num = 0
+    black_huosan_num = 0
+    white_huosan_num = 0
+    black_huoer_num = 0
+    white_huoer_num = 0
+    black_chonger_num = 0
+    white_chonger_num = 0
     for line in board:
-        if line[0:5] == [1,1,1,1,-1] or line[10:15] == [-1,1,1,1,1]:
-            black_lianchongsi_num += 1
-        if line[0:5] == [0,0,0,0,-1] or line[10:15] == [-1,0,0,0,0]:
-            white_lianchongsi_num += 1
-        for i in range(0,len(line)-5):
-            if line[i:i+5] == black_wulian_list:
-                black_wulian_num += 1
-            elif line[i:i+5] == white_wulian_list:
-                white_wulian_num += 1
-            elif i < len(line)-6:
-                if line[i:i+6] == black_lianchongsi_list1 or line[i:i+6] == black_lianchongsi_list2:
-                    black_lianchongsi_num += 1
-                elif line[i:i+6] == white_lianchongsi_list1 or line[i:i+6] == white_lianchongsi_list2:
-                    white_lianchongsi_num += 1
-        if huosi(line) == 1:
-            grade += 9990
-        elif huosi(line) == 0:
-            grade += -9990
-    grade += 9999*black_wulian_num-9999*white_wulian_num+9980*black_lianchongsi_num-9980*white_lianchongsi_num
+        grade_tuple = get_grade(line)
+        black_wulian_num += grade_tuple[0]
+        white_wulian_num += grade_tuple[1]
+        black_huosi_num += grade_tuple[2]
+        white_huosi_num += grade_tuple[3]
+        black_chongsi_num += grade_tuple[4]
+        white_chongsi_num += grade_tuple[5]
+        black_huosan_num += grade_tuple[6]
+        white_huosan_num += grade_tuple[7]
+        black_huoer_num += grade_tuple[8]
+        white_huoer_num += grade_tuple[9]
+        black_chonger_num += grade_tuple[10]
+        white_chonger_num += grade_tuple[11]
+    vertical_board = get_vertical_board(board)
+    for line in vertical_board:
+        grade_tuple = get_grade(line)
+        black_wulian_num += grade_tuple[0]
+        white_wulian_num += grade_tuple[1]
+        black_huosi_num += grade_tuple[2]
+        white_huosi_num += grade_tuple[3]
+        black_chongsi_num += grade_tuple[4]
+        white_chongsi_num += grade_tuple[5]
+        black_huosan_num += grade_tuple[6]
+        white_huosan_num += grade_tuple[7]
+        black_huoer_num += grade_tuple[8]
+        white_huoer_num += grade_tuple[9]
+        black_chonger_num += grade_tuple[10]
+        white_chonger_num += grade_tuple[11]
+    left_board = get_left_board(board)
+    for line in left_board:
+        grade_tuple = get_grade(line)
+        black_wulian_num += grade_tuple[0]
+        white_wulian_num += grade_tuple[1]
+        black_huosi_num += grade_tuple[2]
+        white_huosi_num += grade_tuple[3]
+        black_chongsi_num += grade_tuple[4]
+        white_chongsi_num += grade_tuple[5]
+        black_huosan_num += grade_tuple[6]
+        white_huosan_num += grade_tuple[7]
+        black_huoer_num += grade_tuple[8]
+        white_huoer_num += grade_tuple[9]
+        black_chonger_num += grade_tuple[10]
+        white_chonger_num += grade_tuple[11]
+    right_board = get_right_board(board)
+    for line in right_board:
+        grade_tuple = get_grade(line)
+        black_wulian_num += grade_tuple[0]
+        white_wulian_num += grade_tuple[1]
+        black_huosi_num += grade_tuple[2]
+        white_huosi_num += grade_tuple[3]
+        black_chongsi_num += grade_tuple[4]
+        white_chongsi_num += grade_tuple[5]
+        black_huosan_num += grade_tuple[6]
+        white_huosan_num += grade_tuple[7]
+        black_huoer_num += grade_tuple[8]
+        white_huoer_num += grade_tuple[9]
+        black_chonger_num += grade_tuple[10]
+        white_chonger_num += grade_tuple[11]        
+    if black_chongsi_num >= 2:
+        black_huosi_num += 1
+    if white_chongsi_num >= 2:
+        white_huosi_num += 1
+    if white_wulian_num > 0:
+        return 9999
+    elif black_wulian_num > 0:
+        return 9999
+    elif white_huosi_num > 0:
+        return -9990
+    elif black_chongsi_num > 0:
+        return 9980             #最后一层为白棋落子，才有此判断
+    elif white_chongsi_num > 0 and white_huosan_num > 0:
+        return -9985
+    elif black_huosi_num > 0: #最后一层的落子方影响优先级
+        return 9970
+    elif white_huosan_num > 1 and black_chongsi_num == 0:
+        return -9970
+    elif black_chongsi_num > 0 and black_huosan_num > 0:
+        return 9960
+    elif black_huosan_num > 1 and white_chongsi_num == 0 and white_huosan_num == 0:
+        return 9960
+    if black_huosan_num > 1:
+        grade += 2000
+    elif black_huosan_num == 1:
+        grade += 200
+    if white_huosan_num > 1:
+        grade += 500
+    elif white_huosan_num == 1:
+        grade += 100
+    grade += black_chongsi_num*10-white_chongsi_num*10+black_huoer_num*4-white_huoer_num*4+black_chonger_num-white_chonger_num
+    for i in range(15):
+        for j in range(15):
+            if board[i][j] == 1:
+                grade += priority_board[i][j]
+            elif board[i][j] == 0:
+                grade += -priority_board[i][j]
     return grade
 def _coordinate_priority(coordinate):
     x= coordinate[0]
     y = coordinate[1]
     return -priority_board[x][y]
+def near_center(board,x,y):
+    start_X = x - 2
+    end_x = x + 2
+    start_y = y -2
+    end_y = y + 2
+    if start_X < 0:
+        start_X = 0
+    if end_x > len(board)-1:
+        end_x = len(board)-1
+    if start_y  < 0:
+        start_y = 0
+    if end_y > len(board)-1:
+        end_y = len(board)-1
+    count = 0
+    for i in range(start_X,end_x+1):
+        for j in range(start_y,end_y+1):
+            if board[i][j] != -1:
+                count += 1
+                if count > 1:
+                    return True
+    return False
 def get_successors(board, color, priority=_coordinate_priority, EMPTY=-1):
     '''
     返回当前状态的所有后继（默认按坐标顺序从左往右，从上往下）
@@ -209,7 +416,7 @@ def get_successors(board, color, priority=_coordinate_priority, EMPTY=-1):
     idx_list.sort(key=priority)
     #print(idx_list)
     for x, y in idx_list:
-        if board[x][y] == EMPTY:
+        if board[x][y] == EMPTY and near_center(board,x,y):
             next_board[x][y] = color
             #print(x,y)
             yield (x, y, next_board)
