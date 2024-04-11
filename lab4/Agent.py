@@ -35,11 +35,11 @@ def AlphaBetaSearch(board, EMPTY, BLACK, WHITE, isblack,count_steps):
     # 请修改此函数，实现 alpha-beta 剪枝
     # =============你的代码=============
     ...
-    if count_steps == 1:
-        return 7,7,0
+    #if count_steps == 1:
+        #return 7,7,0
     coordinate = ()
     if isblack:
-        coordinate,alpha = MinMax(1,1,4,float('-inf'),float('inf'),board,(0,0))
+        coordinate,alpha = MinMax(1,1,3,float('-inf'),float('inf'),board,(0,0),analysis(board))
     return coordinate[0], coordinate[1], alpha
 
 # 你可能还需要定义评价函数或者别的什么
@@ -50,7 +50,7 @@ def AlphaBetaSearch(board, EMPTY, BLACK, WHITE, isblack,count_steps):
 
 # 以下为编写搜索和评价函数时可能会用到的函数，请看情况使用、修改和优化
 # =============辅助函数=============
-def MinMax(n,player,depth_limit,alpha,beta,board,coordinate):
+def MinMax(n,player,depth_limit,alpha,beta,board,coordinate,grade):
     x = -1
     y = -1
     """if n != 0:
@@ -335,24 +335,24 @@ def analysis(board):
         black_huosi_num += 1
     if white_chongsi_num >= 2:
         white_huosi_num += 1
-    if white_wulian_num > 0:
+    if black_wulian_num > 0:
         return 9999
-    elif black_wulian_num > 0:
-        return 9999
-    elif white_huosi_num > 0:
-        return -9990
-    elif black_chongsi_num > 0:
-        return 9980             #最后一层为白棋落子，才有此判断
-    elif white_chongsi_num > 0 and white_huosan_num > 0:
-        return -9985
-    elif black_huosi_num > 0: #最后一层的落子方影响优先级
-        return 9970
-    elif white_huosan_num > 1 and black_chongsi_num == 0:
+    elif white_wulian_num > 0:
+        return -9999
+    elif black_huosi_num > 0:
+        return 9990
+    elif white_chongsi_num > 0:
+        return -9980             #最后一层为白棋落子，才有此判断
+    elif black_chongsi_num > 0 and white_huosan_num > 0:
+        return 9985
+    elif white_huosi_num > 0: #最后一层的落子方影响优先级
         return -9970
-    elif black_chongsi_num > 0 and black_huosan_num > 0:
-        return 9960
-    elif black_huosan_num > 1 and white_chongsi_num == 0 and white_huosan_num == 0:
-        return 9960
+    elif black_huosan_num > 1 and white_chongsi_num == 0:
+        return 9970
+    elif white_chongsi_num > 0 and white_huosan_num > 0:
+        return -9960
+    elif white_huosan_num > 1 and black_chongsi_num == 0 and black_huosan_num == 0:
+        return -9960
     if black_huosan_num > 1:
         grade += 2000
     elif black_huosan_num == 1:
