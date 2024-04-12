@@ -39,7 +39,7 @@ def AlphaBetaSearch(board, EMPTY, BLACK, WHITE, isblack,count_steps):
         #return 7,7,0
     coordinate = ()
     if isblack:
-        coordinate,alpha = MinMax(1,1,3,float('-inf'),float('inf'),board,(0,0),analysis(board))
+        coordinate,alpha = MinMax(1,1,3,float('-inf'),float('inf'),board,(0,0))
     return coordinate[0], coordinate[1], alpha
 
 # 你可能还需要定义评价函数或者别的什么
@@ -50,17 +50,13 @@ def AlphaBetaSearch(board, EMPTY, BLACK, WHITE, isblack,count_steps):
 
 # 以下为编写搜索和评价函数时可能会用到的函数，请看情况使用、修改和优化
 # =============辅助函数=============
-def MinMax(n,player,depth_limit,alpha,beta,board,coordinate,grade):
+def MinMax(n,player,depth_limit,alpha,beta,board,coordinate):
     x = -1
     y = -1
-    """if n != 0:
-        from copy import deepcopy
-        temp_board = deepcopy(board)
-        temp_board[coordinate[0]][coordinate[1]] = (board[coordinate[0]][coordinate[1]]+1) % 2
-        grade -= analysis(temp_board)
-        grade += analysis(board)
+    if n != 1:
+        grade = analysis(board)
         if grade >= 9999:
-            return (coordinate,grade)"""
+            return (coordinate,grade)
     if n == depth_limit:
         grade = 0
         grade += analysis(board)
@@ -69,7 +65,7 @@ def MinMax(n,player,depth_limit,alpha,beta,board,coordinate,grade):
         next_state = get_successors(board,player,_coordinate_priority,-1)
         coordinate=()
         for x,y,state in next_state:
-            if x == 6 and y == 5:
+            if x == 5 and y == 9:
                 temp = 0
             temp_alpha = MinMax(n+1,0,depth_limit,alpha,beta,state,(x,y))[1]
             if( temp_alpha > alpha):
@@ -129,7 +125,7 @@ def get_grade(line):
     black_tiaohuosan_list1 = [-1,1,1,-1,1,-1]
     black_tiaohuosan_list2 = [-1,1,-1,1,1,-1]
     black_huosan_num = 0
-    white_lianhuosan_list = [0,1,1,1,0]
+    white_lianhuosan_list = [-1,0,0,0,-1]
     white_tiaohuosan_list1 = [-1,0,0,-1,0,-1]
     white_tiaohuosan_list2 = [-1,0,-1,0,0,-1]
     white_huosan_num = 0
@@ -147,6 +143,16 @@ def get_grade(line):
     white_chonger_list1 = [1,0,0,-1]
     white_chonger_list2 = [-1,0,0,1]
     white_chonger_num = 0
+    black_miansan_list1 = [1,-1,1,-1,1]
+    black_miansan_list2 = [0,1,1,1]
+    black_miansan_list3 = [1,1,1,0]
+    black_miansan_list4 = [0,1,1,-1,1]
+    black_miansan_num = 0
+    white_miansan_list1 = [0,-1,0,-1,0]
+    white_miansan_list2 = [1,0,0,0]
+    white_miansan_list3 = [0,0,0,1]
+    white_miansan_list4 = [1,0,0,-1,0]
+    white_miansan_num = 0
     if len(line) >= 3:
         if line[0:3] == [1,1,-1]:
             black_chonger_num += 1
@@ -174,7 +180,11 @@ def get_grade(line):
             black_chonger_num += 1
         elif line[i:i+4] == white_chonger_list1 or line[i:i+4] == white_chonger_list2:
             white_chonger_num += 1
-        if line[i:i+5] == black_wulian_list:
+        elif line[i:i+4] == black_miansan_list2 or line[i:i+4] == black_miansan_list3:
+            black_miansan_num += 1
+        elif line[i:i+4] == white_miansan_list2 or line[i:i+4] == white_miansan_list3:
+            white_miansan_num += 1
+        elif line[i:i+5] == black_wulian_list:
             black_wulian_num  += 1
         elif line[i:i+5] == white_wulian_list:
             white_wulian_num  += 1
@@ -184,12 +194,17 @@ def get_grade(line):
             white_chongsi_num += 1
         elif line[i:i+5] == black_lianhuosan_list:
             black_huosan_num += 1
+            #print("lianhuosan")
         elif line[i:i+5] == white_lianhuosan_list:
             white_huosan_num += 1
         elif line[i:i+5] == black_tiaoer_list:
             black_huoer_num += 1
         elif line[i:i+5] == white_tiaoer_list:
             white_huoer_num += 1
+        elif line[i:i+5] == black_miansan_list1 or line[i:i+5] == black_miansan_list4:
+            black_miansan_num += 1
+        elif  line[i:i+5] == white_miansan_list1 or line[i:i+5] == white_miansan_list4:
+            white_miansan_num += 1
         if i < len(line)-6:
             if line[i:i+6] == black_lianchongsi_list1 or line[i:i+6] == black_lianchongsi_list2:
                 black_chongsi_num += 1
@@ -201,6 +216,7 @@ def get_grade(line):
                 white_huosi_num += 1
             elif line[i:i+6] == black_tiaohuosan_list1 or line[i:i+6] == black_tiaohuosan_list2:
                 black_huosan_num += 1
+                #print(i,"tiaohuoshan")
             elif line[i:i+6] == white_tiaohuosan_list1 or line[i:i+6] == white_tiaohuosan_list2:
                 white_huosan_num += 1
             elif line[i:i+6] == black_datiaoer_list:
@@ -212,7 +228,11 @@ def get_grade(line):
             black_huoer_num += 2
         elif line[len(line)-4:len(line)] == white_lianer_list:
             white_huoer_num += 2
-    return (black_wulian_num,white_wulian_num,black_huosi_num,white_huosi_num,black_chongsi_num,white_chongsi_num,black_huosan_num,white_huosan_num,black_huoer_num,white_huoer_num,black_chonger_num,white_chonger_num)
+        elif line[len(line)-4:len(line)] == black_miansan_list2 or line[len(line)-4:len(line)] == black_miansan_list3:
+            black_miansan_num += 1
+        elif  line[len(line)-4:len(line)] == white_miansan_list2 or line[len(line)-4:len(line)] == white_miansan_list3:
+            white_miansan_num += 1
+    return (black_wulian_num,white_wulian_num,black_huosi_num,white_huosi_num,black_chongsi_num,white_chongsi_num,black_huosan_num,white_huosan_num,black_huoer_num,white_huoer_num,black_chonger_num,white_chonger_num,black_miansan_num,white_miansan_num)
 def get_vertical_board(board):
     for i in range(15):
         line = []
@@ -240,14 +260,14 @@ def get_left_board(board):
         yield(line)
 
 def get_right_board(board):
-    for i in range(14,-1,-1):
+    for i in range(15):
         line = []
-        column = i
-        row = 0
-        while column <= 14:
+        column = 14
+        row = i
+        while column >= 0:
             line.append(board[row][column])
-            column += 1
-            row += 1
+            column -= 1
+            row -= 1
         yield(line)
     for i in range(1,15):
         line = []
@@ -272,6 +292,8 @@ def analysis(board):
     white_huoer_num = 0
     black_chonger_num = 0
     white_chonger_num = 0
+    black_miansan_num = 0
+    white_miansan_num = 0
     for line in board:
         grade_tuple = get_grade(line)
         black_wulian_num += grade_tuple[0]
@@ -286,6 +308,8 @@ def analysis(board):
         white_huoer_num += grade_tuple[9]
         black_chonger_num += grade_tuple[10]
         white_chonger_num += grade_tuple[11]
+        black_miansan_num += grade_tuple[12]
+        white_miansan_num += grade_tuple[13]
     vertical_board = get_vertical_board(board)
     for line in vertical_board:
         grade_tuple = get_grade(line)
@@ -301,6 +325,8 @@ def analysis(board):
         white_huoer_num += grade_tuple[9]
         black_chonger_num += grade_tuple[10]
         white_chonger_num += grade_tuple[11]
+        black_miansan_num += grade_tuple[12]
+        white_miansan_num += grade_tuple[13]
     left_board = get_left_board(board)
     for line in left_board:
         grade_tuple = get_grade(line)
@@ -316,6 +342,8 @@ def analysis(board):
         white_huoer_num += grade_tuple[9]
         black_chonger_num += grade_tuple[10]
         white_chonger_num += grade_tuple[11]
+        black_miansan_num += grade_tuple[12]
+        white_miansan_num += grade_tuple[13]
     right_board = get_right_board(board)
     for line in right_board:
         grade_tuple = get_grade(line)
@@ -330,8 +358,10 @@ def analysis(board):
         black_huoer_num += grade_tuple[8]
         white_huoer_num += grade_tuple[9]
         black_chonger_num += grade_tuple[10]
-        white_chonger_num += grade_tuple[11]        
-    if black_chongsi_num >= 2:
+        white_chonger_num += grade_tuple[11]
+        black_miansan_num += grade_tuple[12]
+        white_miansan_num += grade_tuple[13]        
+    """if black_chongsi_num >= 2:
         black_huosi_num += 1
     if white_chongsi_num >= 2:
         white_huosi_num += 1
@@ -341,33 +371,35 @@ def analysis(board):
         return -9999
     elif black_huosi_num > 0:
         return 9990
-    elif white_chongsi_num > 0:
-        return -9980             #最后一层为白棋落子，才有此判断
+    #elif black_chongsi_num > 0:
+        return 9980             #最后一层为白棋落子，才有此判断
     elif black_chongsi_num > 0 and white_huosan_num > 0:
         return 9985
     elif white_huosi_num > 0: #最后一层的落子方影响优先级
-        return -9970
-    elif black_huosan_num > 1 and white_chongsi_num == 0:
-        return 9970
-    elif white_chongsi_num > 0 and white_huosan_num > 0:
-        return -9960
-    elif white_huosan_num > 1 and black_chongsi_num == 0 and black_huosan_num == 0:
-        return -9960
-    if black_huosan_num > 1:
+        return -9970"""
+    if black_huosan_num > 1 and white_chongsi_num == 0 and white_huosan_num == 0 and white_miansan_num == 0:
+        grade +=  15000
+    """elif white_chongsi_num > 0 and white_huosan_num > 0:
+        return -9960"""
+    if white_huosan_num > 1 and black_chongsi_num == 0 and black_huosan_num == 0:
+        grade +=  -15000
+    """if black_huosan_num > 1:
         grade += 2000
     elif black_huosan_num == 1:
         grade += 200
     if white_huosan_num > 1:
         grade += 500
     elif white_huosan_num == 1:
-        grade += 100
-    grade += black_chongsi_num*10-white_chongsi_num*10+black_huoer_num*4-white_huoer_num*4+black_chonger_num-white_chonger_num
+        grade += 100"""
+    grade += black_miansan_num*200 - white_miansan_num*200+ black_huoer_num*50-white_huoer_num*50+black_chonger_num*20-white_chonger_num*20+black_huosan_num*2000-white_huosan_num*1000+black_chongsi_num*50000-white_chongsi_num*100000+black_huosi_num*30000-white_huosi_num*6000+black_wulian_num*9999999- white_wulian_num*9999999
     for i in range(15):
         for j in range(15):
             if board[i][j] == 1:
                 grade += priority_board[i][j]
             elif board[i][j] == 0:
                 grade += -priority_board[i][j]
+    #if grade >= 9999:
+        #print(board)
     return grade
 def _coordinate_priority(coordinate):
     x= coordinate[0]
@@ -386,13 +418,10 @@ def near_center(board,x,y):
         start_y = 0
     if end_y > len(board)-1:
         end_y = len(board)-1
-    count = 0
     for i in range(start_X,end_x+1):
         for j in range(start_y,end_y+1):
             if board[i][j] != -1:
-                count += 1
-                if count > 1:
-                    return True
+                return True
     return False
 def get_successors(board, color, priority=_coordinate_priority, EMPTY=-1):
     '''
