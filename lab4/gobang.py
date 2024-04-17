@@ -119,7 +119,8 @@ class Gobang(game.Game):
         pygame.display.set_caption("五子棋")
         self.click(y*SIDE, x*SIDE)
         print(x, y, alpha)
-
+    def get_board(self):
+        return self.board()
 
 if __name__ == '__main__':
     print('''
