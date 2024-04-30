@@ -1,0 +1,14 @@
+官网
+https://fai.cs.uni-saarland.de/hoffmann/ff.html
+v2.3下载地址
+https://fai.cs.uni-saarland.de/hoffmann/ff/FF-v2.3.tgz
+
+安装：
+tar -zxvf FF-v2.3.tgz
+cd FF-v2.3
+make
+
+使用：
+make完后FF-v2.3文件夹里会生成可执行文件ff。可将其加到/etc/bin 以直接使用ff命令调用，或直接在同目录下：
+./ff -o 论域文件路径 -f 问题文件路径 
+
