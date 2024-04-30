@@ -9,4 +9,4 @@
 
 * [基于博弈树搜索 Alpha-beta剪枝的五子棋人机对弈程序](https://github.com/doovvv/ai_labs_SYSU/tree/main/lab4)
 
-  
+* [PDDL实验(归结)](https://github.com/doovvv/ai_labs_SYSU/tree/main/lab5)  
