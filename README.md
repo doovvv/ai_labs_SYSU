@@ -12,3 +12,7 @@
 * [PDDL实验(归结)](https://github.com/doovvv/ai_labs_SYSU/tree/main/lab5)  
 * [KNN情感文本分类](https://github.com/doovvv/ai_labs_SYSU/tree/main/lab6)
 * [CNN中药图片分类](https://github.com/doovvv/ai_labs_SYSU/tree/main/lab7)
+
+* [Deep Q-learning](https://github.com/doovvv/ai_labs_SYSU/tree/main/lab8)
+
+* [自然语言推理](https://github.com/doovvv/ai_labs_SYSU/tree/main/lab9)
